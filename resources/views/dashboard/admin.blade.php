@@ -27,31 +27,69 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-blue-500">
                     <div class="text-gray-500 text-sm font-medium">Total Warga</div>
-                    <div class="text-2xl font-bold text-gray-800">{{ $data['total_warga'] }} Warga</div>
+                    <div class="text-2xl font-bold text-gray-800">{{ $data['total_warga'] }} Orang</div>
                 </div>
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-orange-500">
-                    <div class="text-gray-500 text-sm font-medium">Belum Bayar</div>
+                    <div class="text-gray-500 text-sm font-medium">Warga Belum Bayar</div>
                     <div class="text-2xl font-bold text-orange-600">
-                        {{ $data['jumlah_belum_bayar'] }} Warga
+                        {{ $data['jumlah_belum_bayar'] }} Orang
                     </div>
                 </div>
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-green-500">
-                    <div class="text-gray-500 text-sm font-medium">Lunas Bulan Ini</div>
+                    <div class="text-gray-500 text-sm font-medium">Warga Lunas (Bulan Ini)</div>
                     <div class="text-2xl font-bold text-green-600">
-                        {{ $data['jumlah_sudah_bayar'] }} Warga
+                        {{ $data['jumlah_sudah_bayar'] }} Orang
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-emerald-600">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-gray-500 text-sm font-medium">Total Uang Masuk</div>
+                            <div class="text-3xl font-bold text-emerald-600">
+                                Rp {{ number_format($data['total_uang_masuk'], 0, ',', '.') }}
+                            </div>
+                        </div>
+                        <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-red-500">
-                    <div class="text-gray-500 text-sm font-medium">Potensi Uang Masuk</div>
-                    <div class="text-2xl font-bold text-red-600 truncate">
-                        Rp {{ number_format($data['total_tagihan_pending'], 0, ',', '.') }}
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-gray-500 text-sm font-medium">Sisa Tagihan (Belum Lunas)</div>
+                            <div class="text-3xl font-bold text-red-600">
+                                Rp {{ number_format($data['total_tagihan_pending'], 0, ',', '.') }}
+                            </div>
+                        </div>
+                        <div class="p-3 bg-red-100 rounded-full text-red-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
                     </div>
+                </div>
+
+            </div>
+
+            <div class="mb-6 flex justify-end">
+                <div class="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-md shadow-sm flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span id="realtime-clock" class="font-mono font-bold text-xs">...</span>
                 </div>
             </div>
 
@@ -62,11 +100,10 @@
                         <h3 class="font-bold text-lg">Daftar Tagihan</h3>
 
                         <form action="{{ route('dashboard') }}" method="GET" class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 w-full md:w-auto">
-
-                            <select name="status" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                            <select name="status" onchange="this.form.submit()" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
                                 <option value="">- Semua Status -</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Belum Bayar</option>
-                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Lunas</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
                             </select>
 
                             <div class="relative">
@@ -85,7 +122,7 @@
                                 </a>
                             @endif
                         </form>
-                        </div>
+                    </div>
 
                     <div class="overflow-x-auto">
                         <table class="min-w-full bg-white border border-gray-200">
@@ -102,23 +139,21 @@
                             <tbody>
                                 @forelse ($data['tagihan_terbaru'] as $invoice)
                                     <tr>
-                                        <td class="py-2 px-4 border-b text-sm font-mono">{{ $invoice->invoice_code }}
-                                        </td>
+                                        <td class="py-2 px-4 border-b text-sm font-mono">{{ $invoice->invoice_code }}</td>
                                         <td class="py-2 px-4 border-b">{{ $invoice->user->name }}</td>
-                                        <td class="py-2 px-4 border-b">Rp
-                                            {{ number_format($invoice->total_amount, 0, ',', '.') }}</td>
+                                        <td class="py-2 px-4 border-b">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</td>
                                         <td class="py-2 px-4 border-b">
-                                            <span
-                                                class="px-2 py-1 text-xs rounded {{ $invoice->status == 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                            <span class="px-2 py-1 text-xs rounded {{ $invoice->status == 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                                 {{ ucfirst($invoice->status) }}
                                             </span>
                                         </td>
+
                                         <td class="py-2 px-4 border-b text-sm text-gray-500">
-                                            {{ $invoice->created_at->format('d M Y') }}</td>
+                                            {{ $invoice->created_at->format('d M Y') }}
+                                        </td>
 
                                         <td class="py-2 px-4 border-b text-center">
-                                            <div class="flex item-center justify-center space-x-2">
-
+                                            <div class="flex items-center justify-center space-x-2">
                                                 @if ($invoice->status == 'pending')
                                                     <form action="{{ route('invoices.markPaid', $invoice->id) }}"
                                                         method="POST"
@@ -127,15 +162,15 @@
                                                         @method('PATCH')
                                                         <button type="submit"
                                                             class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-1 px-3 rounded text-xs"
-                                                            title="Tandai Lunas">
+                                                            title="Tandai Paid">
                                                             Bayar Manual
                                                         </button>
                                                     </form>
                                                 @else
                                                     <button type="button"
                                                             class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded text-xs cursor-default"
-                                                            title="Sudah Lunas">
-                                                            Sudah Lunas
+                                                            title="Sudah Paid">
+                                                            Sudah Bayar
                                                     </button>
                                                 @endif
 
@@ -150,15 +185,12 @@
                                                         Hapus
                                                     </button>
                                                 </form>
-
                                             </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="py-8 text-center text-gray-500">
-                                            Data tidak ditemukan.
-                                        </td>
+                                        <td colspan="6" class="py-8 text-center text-gray-500">Data tidak ditemukan.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -174,4 +206,16 @@
 
         </div>
     </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const dateOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+            const dateString = now.toLocaleDateString('id-ID', dateOptions);
+            const timeString = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('realtime-clock').innerHTML = `${dateString} - ${timeString} WIB`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
 </x-app-layout>

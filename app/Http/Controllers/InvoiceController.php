@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Invoice; // Pastikan Model Invoice di-import
+use App\Models\Invoice;
 use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
@@ -12,27 +12,31 @@ class InvoiceController extends Controller
      */
     public function destroy($id)
     {
-        // Cari tagihan berdasarkan ID, jika tidak ketemu akan error 404 otomatis
         $invoice = Invoice::findOrFail($id);
-
-        // Hapus data
         $invoice->delete();
 
-        // Kembali ke halaman admin dengan pesan sukses
         return back()->with('success', 'Tagihan berhasil dihapus.');
     }
 
+    /**
+     * Update status jadi PAID (Manual) + Nama Warga di notifikasi
+     */
     public function markAsPaid($id)
     {
+        // 1. Cari data invoice
         $invoice = Invoice::findOrFail($id);
 
-        // Update status jadi paid
+        // 2. Ambil nama warga dari relasi user
+        // Pastikan Model Invoice punya function user() { return $this->belongsTo(User::class); }
+        $namaWarga = $invoice->user->name;
+
+        // 3. Update status jadi paid
         $invoice->update([
             'status' => 'paid',
-            // Opsional: Jika kamu punya kolom payment_method, bisa diisi 'manual'
-            // 'payment_method' => 'manual'
         ]);
 
-        return back()->with('success', 'Tagihan berhasil ditandai LUNAS (Pembayaran Manual).');
+        // 4. Tampilkan pesan dengan nama warga
+        // Gunakan tanda kutip dua (") agar variabel terbaca
+        return back()->with('success', "Sukses! Tagihan $namaWarga berhasil ditandai LUNAS (Pembayaran Manual).");
     }
 }

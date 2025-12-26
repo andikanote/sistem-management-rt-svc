@@ -35,21 +35,26 @@ class DashboardController extends Controller
             }
 
             // Ambil data dengan Pagination (10 per halaman)
-            // withQueryString() penting agar saat pindah halaman, filter pencarian tidak hilang
             $tagihan_paginated = $query->latest()->paginate(10)->withQueryString();
-
 
             // --- DATA STATISTIK ---
             $data = [
+                // DATA ORANG
                 'total_warga' => User::where('role', 'warga')->count(),
-                'total_tagihan_pending' => Invoice::where('status', 'pending')->sum('total_amount'),
                 'jumlah_belum_bayar' => Invoice::where('status', 'pending')->count(),
                 'jumlah_sudah_bayar' => Invoice::where('status', 'paid')
                                         ->whereMonth('created_at', Carbon::now()->month)
                                         ->whereYear('created_at', Carbon::now()->year)
                                         ->count(),
 
-                // Masukkan hasil pagination ke array data
+                // DATA UANG
+                // 1. Sisa Tagihan (Uang yang BELUM diterima)
+                'total_tagihan_pending' => Invoice::where('status', 'pending')->sum('total_amount'),
+
+                // 2. Total Uang Masuk (Uang yang SUDAH diterima)
+                'total_uang_masuk' => Invoice::where('status', 'paid')->sum('total_amount'),
+
+                // List Tagihan untuk Tabel
                 'tagihan_terbaru' => $tagihan_paginated
             ];
 

@@ -4,8 +4,9 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\InvoiceController; // <--- Import Controller Baru
+use App\Http\Controllers\InvoiceController;
 use Illuminate\Support\Facades\Artisan;
+use Carbon\Carbon; // <--- Penting: Tambahkan ini untuk fitur tanggal dinamis
 
 // 1. Halaman Awal langsung lempar ke Login
 Route::get('/', function () {
@@ -29,16 +30,21 @@ Route::middleware('auth')->group(function () {
 
     // === ROUTE ADMIN: MANUAL TRIGGER SCHEDULER ===
     Route::post('/admin/generate-invoices', function () {
-        // Panggil command artisan via kode
+        // 1. Panggil command artisan via kode
         Artisan::call('invoice:generate-monthly');
 
-        // Kembali ke halaman sebelumnya dengan pesan sukses
-        return back()->with('success', 'Scheduler dijalankan: Tagihan bulan ini berhasil digenerate!');
+        // 2. Ambil format Bulan Tahun saat ini (Contoh: Desember 2025)
+        // locale('id') memastikan nama bulan dalam Bahasa Indonesia
+        $periode = Carbon::now()->locale('id')->isoFormat('MMMM Y');
+
+        // 3. Kembali ke halaman sebelumnya dengan pesan sukses dinamis
+        return back()->with('success', "Scheduler dijalankan: Tagihan bulan $periode berhasil di Generate!");
     })->name('admin.invoices.generate');
 
     // === ROUTE ADMIN: DELETE INVOICE ===
     Route::delete('/invoices/{id}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
-    // === TAMBAHAN BARU: Route Bayar Manual ===
+
+    // === ROUTE ADMIN: BAYAR MANUAL ===
     Route::patch('/invoices/{id}/paid', [InvoiceController::class, 'markAsPaid'])->name('invoices.markPaid');
 });
 
