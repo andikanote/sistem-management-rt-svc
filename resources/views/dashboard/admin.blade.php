@@ -28,7 +28,6 @@
             @endif
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-blue-500">
                     <div class="text-gray-500 text-sm font-medium">Total Warga</div>
                     <div class="text-2xl font-bold text-gray-800">{{ $data['total_warga'] }} Warga</div>
@@ -54,12 +53,40 @@
                         Rp {{ number_format($data['total_tagihan_pending'], 0, ',', '.') }}
                     </div>
                 </div>
-
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <h3 class="font-bold text-lg mb-4">5 Tagihan Terbaru</h3>
+
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-4 space-y-3 md:space-y-0">
+                        <h3 class="font-bold text-lg">Daftar Tagihan</h3>
+
+                        <form action="{{ route('dashboard') }}" method="GET" class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 w-full md:w-auto">
+
+                            <select name="status" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                                <option value="">- Semua Status -</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Belum Bayar</option>
+                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Lunas</option>
+                            </select>
+
+                            <div class="relative">
+                                <input type="text" name="search" value="{{ request('search') }}"
+                                    placeholder="Cari Nama / Invoice..."
+                                    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm w-full md:w-64">
+                            </div>
+
+                            <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+                                Cari
+                            </button>
+
+                            @if(request('search') || request('status'))
+                                <a href="{{ route('dashboard') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded text-sm text-center">
+                                    Reset
+                                </a>
+                            @endif
+                        </form>
+                        </div>
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full bg-white border border-gray-200">
                             <thead>
@@ -68,12 +95,12 @@
                                     <th class="py-2 px-4 border-b text-left">Nama</th>
                                     <th class="py-2 px-4 border-b text-left">Total Pembayaran</th>
                                     <th class="py-2 px-4 border-b text-left">Status</th>
-                                    <th class="py-2 px-4 border-b text-left">Tgl. Keluar</th>
+                                    <th class="py-2 px-4 border-b text-left">Tgl. Cetak Tagihan</th>
                                     <th class="py-2 px-4 border-b text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($data['tagihan_terbaru'] as $invoice)
+                                @forelse ($data['tagihan_terbaru'] as $invoice)
                                     <tr>
                                         <td class="py-2 px-4 border-b text-sm font-mono">{{ $invoice->invoice_code }}
                                         </td>
@@ -105,11 +132,11 @@
                                                         </button>
                                                     </form>
                                                 @else
-                                                    <button type="submit"
-                                                            class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded text-xs"
+                                                    <button type="button"
+                                                            class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded text-xs cursor-default"
                                                             title="Sudah Lunas">
                                                             Sudah Lunas
-                                                        </button>
+                                                    </button>
                                                 @endif
 
                                                 <form action="{{ route('invoices.destroy', $invoice->id) }}"
@@ -127,10 +154,21 @@
                                             </div>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="py-8 text-center text-gray-500">
+                                            Data tidak ditemukan.
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
+
+                    <div class="mt-4">
+                        {{ $data['tagihan_terbaru']->links() }}
+                    </div>
+
                 </div>
             </div>
 
