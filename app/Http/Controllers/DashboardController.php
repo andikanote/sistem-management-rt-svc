@@ -13,12 +13,13 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
+        // 1. Logic untuk Role Admin atau Sekretaris
         if ($user->role == 'admin' || $user->role == 'sekretaris') {
 
             // --- LOGIC FILTER PENCARIAN ---
             $query = Invoice::with('user');
 
-            // 1. Filter Search (Nama Warga atau Kode Invoice)
+            // Filter Search (Nama Warga atau Kode Invoice)
             if ($request->has('search') && $request->search != null) {
                 $search = $request->search;
                 $query->where(function($q) use ($search) {
@@ -29,7 +30,7 @@ class DashboardController extends Controller
                 });
             }
 
-            // 2. Filter Status (Pending / Paid)
+            // Filter Status (Pending / Paid)
             if ($request->has('status') && $request->status != null) {
                 $query->where('status', $request->status);
             }
@@ -37,7 +38,7 @@ class DashboardController extends Controller
             // Ambil data dengan Pagination (10 per halaman)
             $tagihan_paginated = $query->latest()->paginate(10)->withQueryString();
 
-            // --- DATA STATISTIK ---
+            // --- DATA STATISTIK UNTUK ADMIN ---
             $data = [
                 // DATA ORANG
                 'total_warga' => User::where('role', 'warga')->count(),
@@ -48,10 +49,7 @@ class DashboardController extends Controller
                                         ->count(),
 
                 // DATA UANG
-                // 1. Sisa Tagihan (Uang yang BELUM diterima)
                 'total_tagihan_pending' => Invoice::where('status', 'pending')->sum('total_amount'),
-
-                // 2. Total Uang Masuk (Uang yang SUDAH diterima)
                 'total_uang_masuk' => Invoice::where('status', 'paid')->sum('total_amount'),
 
                 // List Tagihan untuk Tabel
@@ -61,9 +59,22 @@ class DashboardController extends Controller
             return view('dashboard.admin', compact('data'));
 
         } else {
-            // Dashboard Warga
-            $tagihans = Invoice::where('user_id', $user->id)
-                        ->orderBy('created_at', 'desc')->get();
+            // 2. Dashboard Warga (Ditambahkan Fitur Filter)
+            $query = Invoice::where('user_id', $user->id);
+
+            // Filter berdasarkan Bulan jika dipilih
+            if ($request->filled('month')) {
+                $query->whereMonth('created_at', $request->month);
+            }
+
+            // Filter berdasarkan Tahun jika dipilih
+            if ($request->filled('year')) {
+                $query->whereYear('created_at', $request->year);
+            }
+
+            // Mengambil data tagihan milik warga tersebut
+            $tagihans = $query->orderBy('created_at', 'desc')->get();
+
             return view('dashboard.warga', compact('tagihans'));
         }
     }
