@@ -133,6 +133,7 @@
                                     <th class="py-2 px-4 border-b text-left">Total Pembayaran</th>
                                     <th class="py-2 px-4 border-b text-left">Status</th>
                                     <th class="py-2 px-4 border-b text-left">Tgl. Cetak Tagihan</th>
+                                    <th class="py-2 px-4 border-b text-left">Update Terakhir</th>
                                     <th class="py-2 px-4 border-b text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -150,6 +151,11 @@
 
                                         <td class="py-2 px-4 border-b text-sm text-gray-500">
                                             {{ $invoice->created_at->format('d M Y') }}
+                                        </td>
+
+                                        <td class="py-2 px-4 border-b text-sm text-gray-500">
+                                            {{-- PERBAIKAN: Tambahkan timezone('Asia/Jakarta') --}}
+                                            {{ $invoice->updated_at->timezone('Asia/Jakarta')->format('d M Y H:i') }} WIB
                                         </td>
 
                                         <td class="py-2 px-4 border-b text-center">
@@ -190,7 +196,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="py-8 text-center text-gray-500">Data tidak ditemukan.</td>
+                                        <td colspan="7" class="py-8 text-center text-gray-500">Data tidak ditemukan.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
