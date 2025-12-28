@@ -100,7 +100,7 @@
                                 </button>
                                 <p
                                     class="text-[10px] text-gray-400 text-center mt-3 uppercase tracking-widest font-bold font-mono">
-                                    QRIS / VA / E-WALLET
+                                    QRIS / VA / E-WALLET / ETC.
                                 </p>
                             @else
                                 <div class="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
@@ -132,7 +132,7 @@
             <div
                 class="relative bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-4xl sm:w-full">
                 <div class="flex justify-between items-center p-4 border-b bg-gray-50">
-                    <h3 class="text-lg font-bold text-gray-800">Pembayaran Elektronik</h3>
+                    <h3 class="text-lg font-bold text-gray-800">Pilih Metode Pembayaran</h3>
                     <button type="button" onclick="closePaymentModal()"
                         class="text-gray-400 hover:text-red-500 transition-colors">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
